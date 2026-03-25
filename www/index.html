@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ContacTel</title>
+
+    <!-- CSS jQuery Mobile -->
+    <link rel="stylesheet" href="lib/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.css">
+
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- jQuery -->
+    <script src="lib/jquery.mobile-1.4.5/jquery.min.js"></script>
+
+    <!-- jQuery Mobile -->
+    <script src="lib/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+    <!-- Cordova -->
+    <script src="cordova.js"></script>
+
+    <!-- Modèle (données) -->
+    <script src="js/models/Contact.js"></script>
+
+    <!-- Vues -->
+    <script src="js/views/VueAccueil.js"></script>
+    <script src="js/views/VueProfil.js"></script>
+    <script src="js/views/VueFormulaire.js"></script>
+
+    <!-- Contrôleurs -->
+    <script src="js/controllers/AccueilControleur.js"></script>
+    <script src="js/controllers/ProfilControleur.js"></script>
+    <script src="js/controllers/FormulaireControleur.js"></script>
+
+    <!-- Application principale -->
+    <script src="js/app.js"></script>
+</head>
+
+<body>
+
+    <!-- ============================= -->
+    <!--       PAGE D'ACCUEIL          -->
+    <!-- ============================= -->
+    <div data-role="page" id="pageAccueil">
+
+        <div data-role="header" data-position="fixed">
+            <h1>ContacTel</h1>
+        </div>
+
+        <div role="main" class="ui-content">
+
+            <a href="#pageAjout"
+               data-role="button"
+               data-icon="plus"
+               data-iconpos="right"
+               class="btn-ajouter">
+                Ajouter un contact
+            </a>
+
+            <ul data-role="listview"
+                data-inset="true"
+                data-filter="true"
+                data-filter-placeholder="Rechercher un contact..."
+                id="listeContacts">
+                <!-- Rempli dynamiquement par VueAccueil.js -->
+            </ul>
+
+            <a href="#"
+               data-role="button"
+               data-icon="refresh"
+               onclick="AccueilControleur.chargerDepuisAPI()"
+               class="btn-api">
+                Charger depuis l'API
+            </a>
+
+        </div>
+
+        <div data-role="footer" data-position="fixed">
+            <h4>M2GLSI © 2026</h4>
+        </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!--        PAGE PROFIL            -->
+    <!-- ============================= -->
+    <div data-role="page" id="pageProfil">
+
+        <div data-role="header" data-position="fixed">
+            <a href="#pageAccueil" data-rel="back" data-role="button" data-icon="arrow-l">Retour</a>
+            <h1>Profil</h1>
+        </div>
+
+        <div role="main" class="ui-content">
+
+            <ul data-role="listview" data-inset="true">
+
+                <li>
+                    <img src="img/contact-1.png" id="avatarProfil">
+                    <h2 id="nomProfil"></h2>
+                    <p id="telephoneProfil"></p>
+                </li>
+
+                <li>
+                    <h2>Téléphone</h2>
+                    <p id="telephoneDetailProfil"></p>
+                </li>
+
+                <li>
+                    <h2>Email</h2>
+                    <p id="emailProfil"></p>
+                </li>
+
+                <li>
+                    <h2>Organisation</h2>
+                    <p id="organisationProfil"></p>
+                </li>
+
+            </ul>
+
+            <div class="actions-profil">
+                <a href="#"
+                   data-role="button"
+                   data-icon="edit"
+                   class="btn-modifier"
+                   onclick="ProfilControleur.modifierContact()">
+                    Modifier
+                </a>
+
+                <a href="#"
+                   data-role="button"
+                   data-icon="delete"
+                   class="btn-supprimer"
+                   onclick="ProfilControleur.supprimerContact()">
+                    Supprimer
+                </a>
+            </div>
+
+        </div>
+
+        <div data-role="footer" data-position="fixed">
+            <h4>M2GLSI © 2026</h4>
+        </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!--     PAGE AJOUT / MODIFICATION -->
+    <!-- ============================= -->
+    <div data-role="page" id="pageAjout">
+
+        <div data-role="header" data-position="fixed">
+            <a href="#pageAccueil" data-rel="back" data-role="button" data-icon="arrow-l">Retour</a>
+            <h1 id="titreFormulaire">Nouveau contact</h1>
+        </div>
+
+        <div role="main" class="ui-content">
+
+            <div data-role="fieldcontain">
+                <label for="champNom">Nom complet *</label>
+                <input type="text" id="champNom" placeholder="Ex : Ismaïla Sarr">
+            </div>
+
+            <div data-role="fieldcontain">
+                <label for="champTelephone">Téléphone *</label>
+                <input type="tel" id="champTelephone" placeholder="Ex : 70 123 45 67">
+            </div>
+
+            <div data-role="fieldcontain">
+                <label for="champEmail">Email</label>
+                <input type="email" id="champEmail" placeholder="Ex : ismaila@esp.sn">
+            </div>
+
+            <div data-role="fieldcontain">
+                <label for="champOrganisation">Organisation</label>
+                <input type="text" id="champOrganisation" placeholder="Ex : ESP">
+            </div>
+
+            <a href="#"
+               data-role="button"
+               data-icon="check"
+               data-iconpos="right"
+               onclick="FormulaireControleur.enregistrerContact()"
+               class="btn-enregistrer">
+                Enregistrer
+            </a>
+
+        </div>
+
+        <div data-role="footer" data-position="fixed">
+            <h4>M2GLSI © 2026</h4>
+        </div>
+
+    </div>
+
+</body>
+</html>
