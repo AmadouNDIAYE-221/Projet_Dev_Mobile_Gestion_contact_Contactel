@@ -5,41 +5,137 @@
 
 const FormulaireControleur = {
 
-    /**
-     * Valide et enregistre un nouveau contact.
-     * Appelé par le bouton "Enregistrer" du formulaire.
-     */
-    enregistrerContact() {
-        // 1. Lire les données du formulaire via la vue
-        const donnees = VueFormulaire.lireDonnees();
+    contactCourant: null, // contact Android natif ou objet API
 
-        // 2. Valider les champs obligatoires
-        if (!donnees.nom) {
-            VueFormulaire.afficherErreurValidation('Le nom est obligatoire.');
-            return;
-        }
-        if (!donnees.telephone) {
-            VueFormulaire.afficherErreurValidation('Le téléphone est obligatoire.');
-            return;
-        }
-
-        // 3. Déléguer la sauvegarde au modèle
-        Contact.enregistrer(
-            donnees,
-            function() {
-                alert('✅ Contact "' + donnees.nom + '" enregistré avec succès !');
-
-                // Réinitialiser le formulaire pour le prochain ajout
-                VueFormulaire.reinitialiser();
-
-                // Retourner à l'accueil et rafraîchir la liste
-                $.mobile.changePage('#pageAccueil');
-                AccueilControleur.rafraichirListe();
-            },
-            function(erreur) {
-                alert('❌ Erreur lors de la sauvegarde : ' + (erreur.message || erreur.code));
-                console.error('Erreur sauvegarde :', erreur);
-            }
-        );
+    recupererValeursFormulaire() {
+        return {
+            nom: document.getElementById('champNom').value,
+            telephone: document.getElementById('champTelephone').value,
+            email: document.getElementById('champEmail').value,
+            organisation: document.getElementById('champOrganisation').value
+        };
     },
-};
+
+    remplirFormulaire(contact) {
+        document.getElementById('champNom').value = contact.displayName || '';
+        document.getElementById('champTelephone').value = (contact.phoneNumbers && contact.phoneNumbers[0]?.value) || '';
+        document.getElementById('champEmail').value = (contact.emails && contact.emails[0]?.value) || '';
+        document.getElementById('champOrganisation').value = (contact.organizations && contact.organizations[0]?.name) || '';
+    },
+
+    viderFormulaire() {
+        document.getElementById('champNom').value = '';
+        document.getElementById('champTelephone').value = '';
+        document.getElementById('champEmail').value = '';
+        document.getElementById('champOrganisation').value = '';
+        this.contactCourant = null;
+    },
+
+enregistrerContact() {
+    const valeurs = this.recupererValeursFormulaire();
+    if (!valeurs.nom || !valeurs.telephone) { 
+        alert("Nom et téléphone obligatoires"); 
+        return; 
+    }
+
+    // Même détection fiable que partout ailleurs
+    const isAndroid = typeof device !== 'undefined' && device.platform === 'Android';
+
+    if (isAndroid) {
+        // Android natif uniquement
+        if (this.contactCourant) {
+            let c = this.contactCourant;
+            c.displayName = valeurs.nom;
+            // ✅ Vérifier que c.name existe avant d'y accéder
+            if (!c.name) c.name = new ContactName();
+            c.name.formatted = valeurs.nom;
+            c.phoneNumbers = [new ContactField('mobile', valeurs.telephone, true)];
+            c.emails = valeurs.email ? [new ContactField('home', valeurs.email, true)] : [];
+            c.organizations = valeurs.organisation ? [new ContactOrganization({name: valeurs.organisation})] : [];
+
+            c.save(() => {
+                alert("Contact modifié !");
+                this.viderFormulaire();
+                $.mobile.changePage('#pageAccueil');
+                AccueilControleur.chargerDepuisContactsNative();
+            }, (err) => alert("Erreur modification : " + err.code));
+
+        } else {
+            const contact = navigator.contacts.create();
+            contact.displayName = valeurs.nom;
+            const nameObj = new ContactName();
+            nameObj.formatted = valeurs.nom;
+            contact.name = nameObj;
+            contact.phoneNumbers = [new ContactField('mobile', valeurs.telephone, true)];
+            if (valeurs.email) contact.emails = [new ContactField('home', valeurs.email, true)];
+            if (valeurs.organisation) contact.organizations = [new ContactOrganization({name: valeurs.organisation})];
+
+            contact.save(() => {
+                alert("Contact créé !");
+                this.viderFormulaire();
+                $.mobile.changePage('#pageAccueil');
+                AccueilControleur.chargerDepuisContactsNative();
+            }, (err) => alert("Erreur ajout : " + err.code));
+        }
+
+    } else {
+        // Navigateur — modification ou création via API Web
+        if (this.contactCourant) {
+            // Modifier dans le JSON via PHP
+            const formData = new FormData();
+            formData.append('ancienNom', this.contactCourant.displayName);
+            formData.append('nom', valeurs.nom);
+            formData.append('telephone', valeurs.telephone);
+            formData.append('email', valeurs.email);
+            formData.append('organisation', valeurs.organisation);
+
+            fetch('http://localhost/contactel/modifierContact.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Contact modifié !");
+                    this.viderFormulaire();
+                    $(document).one('pageshow', '#pageAccueil', function() {
+                        AccueilControleur.chargerDepuisAPIWeb();
+                    });
+                    $.mobile.changePage('#pageAccueil');
+                } else {
+                    alert("Erreur : " + (data.message || "Inconnue"));
+                }
+            })
+            .catch(err => alert("Erreur réseau : " + err.message));
+
+        } else {
+            // Créer via PHP
+            const formData = new FormData();
+            formData.append('nom', valeurs.nom);
+            formData.append('telephone', valeurs.telephone);
+            formData.append('email', valeurs.email);
+            formData.append('organisation', valeurs.organisation);
+
+            fetch('http://localhost/contactel/ajouterContact.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Contact ajouté !");
+                    this.viderFormulaire();
+                    $(document).one('pageshow', '#pageAccueil', function() {
+                        AccueilControleur.chargerDepuisAPIWeb();
+                    });
+                    $.mobile.changePage('#pageAccueil');
+                } else {
+                    alert("Erreur : " + (data.message || "Inconnue"));
+                }
+            })
+            .catch(err => alert("Erreur réseau : " + err.message));
+        }
+    }
+}
+}
+

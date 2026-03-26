@@ -4,54 +4,23 @@
         xmlns:cdv="http://cordova.apache.org/ns/1.0">
 
     <name>ContacTel</name>
-    <description>Application de gestion de contacts - M2GLSI</description>
+    <description>
+        Application de gestion de contacts - M2GLSI
+    </description>
     <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
         Apache Cordova Team
     </author>
 
+    <!-- Page de lancement -->
     <content src="index.html" />
 
-    <!-- ============================================ -->
-    <!-- PERMISSIONS RÉSEAU                           -->
-    <!-- ============================================ -->
-
-    <!-- Autoriser toutes les navigations internes -->
+    <!-- Autorisations de navigation / accès réseau -->
     <allow-navigation href="*" />
-
-    <!-- Autoriser les appels HTTP et HTTPS -->
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-
-    <!-- Accès réseau général (requis pour XHR / fetch) -->
     <access origin="*" />
 
-    <!-- ============================================ -->
-    <!-- ANDROID : autoriser le HTTP non chiffré      -->
-    <!-- (obligatoire depuis Android 9 / API 28)      -->
-    <!-- ============================================ -->
-    <platform name="android">
-
-        <!-- Permission INTERNET dans le AndroidManifest -->
-        <uses-permission android:name="android.permission.INTERNET" />
-
-        <!-- Autoriser le trafic HTTP clair vers le PC hôte -->
-        <edit-config
-            file="app/src/main/AndroidManifest.xml"
-            mode="merge"
-            target="/manifest/application">
-            <application android:usesCleartextTraffic="true" />
-        </edit-config>
-
-    </platform>
-
-    <!-- ============================================ -->
-    <!-- PLUGINS                                      -->
-    <!-- ============================================ -->
-
-    <!-- Plugin contacts natifs Android / iOS -->
+    <!-- Plugins -->
     <plugin name="cordova-plugin-contacts" />
-
-    <!-- Plugin whitelist : nécessaire pour allow-navigation et access -->
-    <plugin name="cordova-plugin-whitelist" spec="^1.3.4" />
 
 </widget>

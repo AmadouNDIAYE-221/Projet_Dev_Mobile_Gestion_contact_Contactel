@@ -5,58 +5,103 @@
 
 const ProfilControleur = {
 
-    /**
-     * Affiche le profil d'un contact et navigue vers la page profil.
-     * Appelé depuis le clic sur un contact dans la liste.
-     *
-     * @param {string} nom          - Nom complet du contact
-     * @param {string} telephone    - Numéro de téléphone
-     * @param {string} email        - Adresse email
-     * @param {string} organisation - Nom de l'organisation
-     * @param {string} photo        - Chemin vers la photo
-     */
-    afficherProfil(nom, telephone, email, organisation, photo) {
-        // Mémoriser le contact courant dans le modèle
-        Contact.contactCourant = { nom, telephone, email, organisation, photo };
+    afficherProfil(contact) {
+        document.getElementById('avatarProfil').src =
+            (contact.photos && contact.photos[0]) ? contact.photos[0].value : 'img/contact-1.png';
+        document.getElementById('nomProfil').textContent = contact.displayName || '';
 
-        // Déléguer l'affichage à la vue
-        VueProfil.afficher(Contact.contactCourant);
+        const tel = (contact.phoneNumbers && contact.phoneNumbers[0])
+            ? contact.phoneNumbers[0].value : '';
+        document.getElementById('telephoneProfil').textContent = tel;
+        document.getElementById('telephoneDetailProfil').textContent = tel;
+        document.getElementById('emailProfil').textContent =
+            (contact.emails && contact.emails[0]) ? contact.emails[0].value : '';
+        document.getElementById('organisationProfil').textContent =
+            (contact.organizations && contact.organizations[0]) ? contact.organizations[0].name : '';
+
+        this.contactCourant = contact;
+        sessionStorage.setItem('contactCourant', JSON.stringify(contact));
+        $.mobile.changePage('#pageProfil');
     },
 
-    /**
-     * Prépare le formulaire pour modifier le contact courant,
-     * puis navigue vers la page formulaire.
-     */
+    _getContact() {
+        if (this.contactCourant) return this.contactCourant;
+        const stored = sessionStorage.getItem('contactCourant');
+        return stored ? JSON.parse(stored) : null;
+    },
+
     modifierContact() {
-        if (!Contact.contactCourant) return;
+        const contact = this._getContact();
+        if (!contact) { alert("Aucun contact sélectionné."); return; }
 
-        // Pré-remplir le formulaire avec les données actuelles
-        VueFormulaire.preremplir(Contact.contactCourant);
+        FormulaireControleur.contactCourant = contact;
 
-        // Aller à la page formulaire
+        // remplirFormulaire au lieu de preremplir
+        VueFormulaire.remplirFormulaire({
+            nom: contact.displayName || '',
+            telephone: (contact.phoneNumbers && contact.phoneNumbers[0])
+                ? contact.phoneNumbers[0].value : '',
+            email: (contact.emails && contact.emails[0])
+                ? contact.emails[0].value : '',
+            organisation: (contact.organizations && contact.organizations[0])
+                ? contact.organizations[0].name : ''
+        });
+
+        // Changer le titre du formulaire
+        document.getElementById('titreFormulaire').textContent = 'Modifier contact';
+
         $.mobile.changePage('#pageAjout');
     },
 
-    /**
-     * Supprime le contact courant après confirmation de l'utilisateur.
-     */
     supprimerContact() {
-        if (!Contact.contactCourant) return;
+        const contact = this._getContact();
+        if (!contact) { alert("Aucun contact sélectionné."); return; }
 
-        if (!VueProfil.confirmerSuppression()) return;
+        if (!confirm("Voulez-vous vraiment supprimer ce contact ?")) return;
 
-        Contact.supprimer(
-            Contact.contactCourant.nom,
-            function() {
-                alert('✅ Contact supprimé avec succès !');
-                Contact.contactCourant = null;
-                $.mobile.changePage('#pageAccueil');
-                AccueilControleur.rafraichirListe();
-            },
-            function(erreur) {
-                alert('❌ Erreur lors de la suppression : ' + (erreur.message || erreur.code));
-                console.error('Erreur suppression :', erreur);
-            }
-        );
-    },
+        // Fonction commune après suppression réussie
+        const apresSupression = () => {
+            this.contactCourant = null;
+            sessionStorage.removeItem('contactCourant');
+            alert("Contact supprimé !");
+
+            $(document).one('pageshow', '#pageAccueil', function() {
+                // Même détection fiable que partout ailleurs
+                const isAndroid = typeof device !== 'undefined' && device.platform === 'Android';
+                if (isAndroid) {
+                    AccueilControleur.chargerDepuisContactsNative();
+                } else {
+                    AccueilControleur.chargerDepuisAPIWeb();
+                }
+            });
+
+            $.mobile.changePage('#pageAccueil');
+        };
+
+        if (contact.remove) {
+            // Android Cordova
+            contact.remove(
+                () => apresSupression(),
+                (err) => alert("Erreur suppression : " + err.code)
+            );
+        } else {
+            // Navigateur — nom envoyé dans le body POST
+            const formData = new FormData();
+            formData.append('nom', contact.displayName);
+
+            fetch('http://localhost/contactel/supprimerContact.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    apresSupression();
+                } else {
+                    alert("Erreur suppression : " + (data.message || "Inconnue"));
+                }
+            })
+            .catch(err => alert("Erreur réseau : " + err.message));
+        }
+    }
 };

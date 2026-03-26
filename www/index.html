@@ -17,7 +17,7 @@
     <!-- jQuery Mobile -->
     <script src="lib/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
 
-    <!-- Cordova -->
+    <!-- Cordova : chargé uniquement si présent -->
     <script src="cordova.js"></script>
 
     <!-- Modèle (données) -->
@@ -69,8 +69,8 @@
             <a href="#"
                data-role="button"
                data-icon="refresh"
-               onclick="AccueilControleur.chargerDepuisAPI()"
-               class="btn-api">
+               class="btn-api"
+               id="btnChargerAPI">
                 Charger depuis l'API
             </a>
 
@@ -81,7 +81,6 @@
         </div>
 
     </div>
-
 
     <!-- ============================= -->
     <!--        PAGE PROFIL            -->
@@ -125,7 +124,7 @@
                    data-role="button"
                    data-icon="edit"
                    class="btn-modifier"
-                   onclick="ProfilControleur.modifierContact()">
+                   id="btnModifier">
                     Modifier
                 </a>
 
@@ -133,7 +132,7 @@
                    data-role="button"
                    data-icon="delete"
                    class="btn-supprimer"
-                   onclick="ProfilControleur.supprimerContact()">
+                   id="btnSupprimer">
                     Supprimer
                 </a>
             </div>
@@ -145,7 +144,6 @@
         </div>
 
     </div>
-
 
     <!-- ============================= -->
     <!--     PAGE AJOUT / MODIFICATION -->
