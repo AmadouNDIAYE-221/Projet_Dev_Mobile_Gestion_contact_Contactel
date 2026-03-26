@@ -1,33 +1,31 @@
+// ============================================================
+//  CONTRÔLEUR – js/controllers/AccueilControleur.js
+//  Gère la logique de la page d'accueil
+// ============================================================
 const AccueilControleur = {
 
-chargerDepuisAPI() {
-    // Plus utilisé directement, mais on le garde au cas où
-
-
-    const isAndroid = typeof device !== 'undefined' && device.platform === 'Android';
-    if (isAndroid) {
-        AccueilControleur.chargerDepuisContactsNative();
-    } else {
-        $(document).one('pageshow', '#pageAccueil', function() {
-            AccueilControleur.chargerDepuisAPIWeb();
-        });
-    }
-    },
+    chargerDepuisAPI() {
+        const isAndroid = typeof device !== 'undefined' && device.platform === 'Android';
+        if (isAndroid) {
+            AccueilControleur.chargerDepuisContactsNative();
+        } else {
+            $(document).one('pageshow', '#pageAccueil', function() {
+                AccueilControleur.chargerDepuisAPIWeb();
+            });
+        }
+        },
 
     chargerDepuisContactsNative() {
-        if (!navigator.contacts) {
-            alert('API contacts non disponible.');
-            return;
-        }
-
         const options = new ContactFindOptions();
         options.multiple = true;
         options.hasPhoneNumber = true;
-        const fields = ['displayName', 'phoneNumbers', 'emails', 'organizations', 'photos'];
+
+        // ✅ Ajouter 'name' en plus pour récupérer givenName etc.
+        const fields = ['displayName', 'name', 'phoneNumbers', 'emails', 'organizations', 'photos'];
 
         navigator.contacts.find(
             fields,
-            (contacts) => this.contactsTrouves(contacts),  // arrow function pour garder le contexte
+            (contacts) => this.contactsTrouves(contacts),
             (error) => this.erreurContacts(error),
             options
         );

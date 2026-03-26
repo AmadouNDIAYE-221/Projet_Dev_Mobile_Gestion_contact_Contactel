@@ -1,4 +1,7 @@
-// js/views/VueFormulaire.js
+// ============================================================
+//  VUE – js/views/VueFormulaire.js
+//  Gère le rendu de la page d'ajout et de de modification d'un contact
+// ============================================================
 const VueFormulaire = {
     recupererValeurs: function() {
         return {

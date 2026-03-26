@@ -43,22 +43,61 @@ enregistrerContact() {
 
     if (isAndroid) {
         // Android natif uniquement
-        if (this.contactCourant) {
-            let c = this.contactCourant;
-            c.displayName = valeurs.nom;
-            // ✅ Vérifier que c.name existe avant d'y accéder
-            if (!c.name) c.name = new ContactName();
-            c.name.formatted = valeurs.nom;
-            c.phoneNumbers = [new ContactField('mobile', valeurs.telephone, true)];
-            c.emails = valeurs.email ? [new ContactField('home', valeurs.email, true)] : [];
-            c.organizations = valeurs.organisation ? [new ContactOrganization({name: valeurs.organisation})] : [];
+    if (this.contactCourant) {
+        let c = this.contactCourant;
 
-            c.save(() => {
+        // Nom
+        c.displayName = valeurs.nom;
+        if (!c.name) c.name = new ContactName();
+        c.name.formatted = valeurs.nom;
+        c.name.givenName = valeurs.nom;
+
+        // Téléphone — vider puis recréer
+        if (!c.phoneNumbers) c.phoneNumbers = [];
+        if (c.phoneNumbers.length > 0) {
+            // Modifier l'entrée existante au lieu d'en créer une nouvelle
+            c.phoneNumbers[0].value = valeurs.telephone;
+            c.phoneNumbers[0].type = 'mobile';
+            c.phoneNumbers[0].pref = true;
+        } else {
+            c.phoneNumbers = [new ContactField('mobile', valeurs.telephone, true)];
+        }
+
+        // Email
+        if (!c.emails) c.emails = [];
+        if (valeurs.email) {
+            if (c.emails.length > 0) {
+                c.emails[0].value = valeurs.email;
+            } else {
+                c.emails = [new ContactField('home', valeurs.email, true)];
+            }
+        } else {
+            c.emails = [];
+        }
+
+        // Organisation — même approche
+        if (!c.organizations) c.organizations = [];
+        if (valeurs.organisation) {
+            if (c.organizations.length > 0) {
+                c.organizations[0].name = valeurs.organisation;
+            } else {
+                c.organizations = [new ContactOrganization({ name: valeurs.organisation })];
+            }
+        } else {
+            c.organizations = [];
+        }
+
+        c.save(
+            () => {
                 alert("Contact modifié !");
                 this.viderFormulaire();
+                $(document).one('pageshow', '#pageAccueil', function () {
+                    AccueilControleur.chargerDepuisContactsNative();
+                });
                 $.mobile.changePage('#pageAccueil');
-                AccueilControleur.chargerDepuisContactsNative();
-            }, (err) => alert("Erreur modification : " + err.code));
+            },
+            (err) => alert("Erreur modification : " + err.code)
+        );
 
         } else {
             const contact = navigator.contacts.create();

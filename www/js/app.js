@@ -37,6 +37,6 @@ $(document).on('pageshow', '#pageProfil', function () {
 $(document).on('pageshow', '#pageAccueil', function () {
     $('#btnChargerAPI').off('click').on('click', function (e) {
         e.preventDefault();
-        AccueilControleur.chargerDepuisAPIWeb(); // ✅ rafraîchit à chaque clic
+        AccueilControleur.chargerDepuisAPIWeb(); // rafraîchit à chaque clic
     });
 });
