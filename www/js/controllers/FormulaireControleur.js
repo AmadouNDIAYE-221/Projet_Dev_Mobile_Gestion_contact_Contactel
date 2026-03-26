@@ -101,20 +101,41 @@ enregistrerContact() {
 
         } else {
             const contact = navigator.contacts.create();
+            
+            // Nom
             contact.displayName = valeurs.nom;
             const nameObj = new ContactName();
             nameObj.formatted = valeurs.nom;
+            nameObj.givenName = valeurs.nom;
             contact.name = nameObj;
-            contact.phoneNumbers = [new ContactField('mobile', valeurs.telephone, true)];
-            if (valeurs.email) contact.emails = [new ContactField('home', valeurs.email, true)];
-            if (valeurs.organisation) contact.organizations = [new ContactOrganization({name: valeurs.organisation})];
 
-            contact.save(() => {
-                alert("Contact créé !");
-                this.viderFormulaire();
-                $.mobile.changePage('#pageAccueil');
-                AccueilControleur.chargerDepuisContactsNative();
-            }, (err) => alert("Erreur ajout : " + err.code));
+            // Téléphone
+            contact.phoneNumbers = [new ContactField('mobile', valeurs.telephone, true)];
+
+            // Email
+            if (valeurs.email) {
+                contact.emails = [new ContactField('home', valeurs.email, true)];
+            }
+
+            // Organisation — ne pas passer un objet dans le constructeur
+            if (valeurs.organisation) {
+                const org = new ContactOrganization();
+                org.name = valeurs.organisation;  // assigner après création
+                org.type = 'Company';
+                contact.organizations = [org];
+            }
+
+            contact.save(
+                () => {
+                    alert("Contact créé !");
+                    this.viderFormulaire();
+                    $(document).one('pageshow', '#pageAccueil', function () {
+                        AccueilControleur.chargerDepuisContactsNative();
+                    });
+                    $.mobile.changePage('#pageAccueil');
+                },
+                (err) => alert("Erreur ajout : " + err.code)
+            );
         }
 
     } else {
