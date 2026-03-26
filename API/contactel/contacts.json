@@ -1,0 +1,117 @@
+[
+    {
+        "displayName": "Professeur Mouhamed DIOP",
+        "phoneNumbers": [
+            {
+                "value": "+221771234567"
+            }
+        ],
+        "emails": [
+            {
+                "value": "diop.mouhamed@esp.sn"
+            }
+        ],
+        "organizations": [
+            {
+                "name": "École Supérieure Polytechnique"
+            }
+        ],
+        "photos": [
+            {
+                "value": "img\/contact-2.png"
+            }
+        ]
+    },
+    {
+        "displayName": "Omar Diop",
+        "phoneNumbers": [
+            {
+                "value": "+221781112233"
+            }
+        ],
+        "emails": [
+            {
+                "value": "omar.diop@esp.sn"
+            }
+        ],
+        "organizations": [
+            {
+                "name": "Responsable MASTER-2 GLSI-Soir"
+            }
+        ],
+        "photos": [
+            {
+                "value": "img\/contact-2.png"
+            }
+        ]
+    },
+    {
+        "displayName": "Bassirou Diomaye FAYE",
+        "phoneNumbers": [
+            {
+                "value": "+221761231010"
+            }
+        ],
+        "emails": [
+            {
+                "value": "bassirou.diomaye.faye@presidence.sn"
+            }
+        ],
+        "organizations": [
+            {
+                "name": "Présidence de la République du Sénégal"
+            }
+        ],
+        "photos": [
+            {
+                "value": "img\/contact-1.png"
+            }
+        ]
+    },
+    {
+        "displayName": "Ousmane SONKO",
+        "phoneNumbers": [
+            {
+                "value": "+221784500101"
+            }
+        ],
+        "emails": [
+            {
+                "value": "sonko.ousmane2024@primature.sn"
+            }
+        ],
+        "organizations": [
+            {
+                "name": "Primature de la République du Sénégal"
+            }
+        ],
+        "photos": [
+            {
+                "value": "img\/contact-1.png"
+            }
+        ]
+    },
+    {
+        "displayName": "Sadio MANÉ",
+        "phoneNumbers": [
+            {
+                "value": "+221773159090"
+            }
+        ],
+        "emails": [
+            {
+                "value": "sadio10@gmail.com"
+            }
+        ],
+        "organizations": [
+            {
+                "name": "AL Nasser Football CLUB"
+            }
+        ],
+        "photos": [
+            {
+                "value": "img\/contact-2.png"
+            }
+        ]
+    }
+]
